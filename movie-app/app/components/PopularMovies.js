@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { formatOriginalLanguageForStudy } from "../../lib/languageFormat.js";
 import { FAVORITES_STORAGE_KEY, loadFavorites, saveFavorites, toggleFavorite } from "../../lib/favoritesStore.js";
 
 function formatReleaseDate(dateStr) {
@@ -42,46 +44,24 @@ function Stars({ rating5 }) {
   );
 }
 
-function formatOriginalLanguage(code) {
-  const c = String(code || "").toLowerCase().trim();
-  if (!c) return "不明";
-
-  // TMDBの `original_language` は基本的に ISO 639-1（例: en=英語, ko=韓国語, zh=中国語系）
-  // ※作品によっては「制作国の事情」で英語原作になっていることもありますが、コード自体は言語を表します。
-  const map = {
-    en: "英語",
-    ko: "韓国語",
-    zh: "中国語",
-    ja: "日本語",
-    fr: "フランス語",
-    de: "ドイツ語",
-    es: "スペイン語",
-    it: "イタリア語",
-    pt: "ポルトガル語",
-    ru: "ロシア語",
-    vi: "ベトナム語",
-    th: "タイ語",
-    id: "インドネシア語",
-    hi: "ヒンディー語",
-  };
-
-  return map[c] ?? `その他（${c}）`;
-}
-
 function FavoriteToggleButton({ hydrated, favorited, disabled, onToggle }) {
   return (
     <button
       type="button"
-      onClick={onToggle}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onToggle();
+      }}
       disabled={disabled}
       aria-pressed={favorited}
       className={[
-        "absolute right-2 top-2 rounded-full px-3 py-1 text-xs font-semibold shadow-sm ring-1 backdrop-blur transition",
-        disabled ? "cursor-not-allowed bg-white/70 text-slate-400 ring-slate-200" : "bg-white/90 text-slate-800 ring-slate-200 hover:bg-white",
-        !disabled && favorited ? "text-rose-700 ring-rose-200" : "",
+        "absolute right-2 top-2 z-20 rounded-md px-2.5 py-1 text-xs font-medium shadow-sm ring-1 transition",
+        disabled ? "cursor-not-allowed bg-slate-50 text-slate-400 ring-slate-200" : "bg-slate-800 text-white ring-slate-700 hover:bg-slate-700",
+        !disabled && favorited ? "bg-slate-700 text-white ring-slate-600" : "",
       ].join(" ")}
     >
-      {disabled ? "読込中…" : favorited ? "★ お気に入り済み" : "☆ お気に入り"}
+      {disabled ? "読込中…" : favorited ? "お気に入り済み" : "お気に入り"}
     </button>
   );
 }
@@ -117,7 +97,7 @@ export default function PopularMovies({ movies }) {
           <div>
             <p className="font-semibold text-slate-900">お気に入り（ローカル保存）</p>
             <p className="mt-1 text-xs text-slate-500">
-              ブラウザの LocalStorage に保存されます（端末内のみ）。将来の絞り込みに使えるよう、原作言語（TMDBの言語コード）も一緒に保存します（表示は日本語にしています）。
+              ブラウザの LocalStorage に保存されます（端末内のみ）。学習向けに、原作言語は「日本語名 + TMDBの言語コード」を併記して保存します。
             </p>
           </div>
           <div className="text-sm font-semibold text-slate-800">{favoriteCount}件</div>
@@ -140,15 +120,15 @@ export default function PopularMovies({ movies }) {
           return (
             <li
               key={Number.isFinite(id) ? id : `${title}-${releaseDate}`}
-              className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-200/60 transition hover:-translate-y-0.5 hover:shadow-lg"
             >
-              <div className="relative aspect-[2/3] w-full bg-slate-100">
+              <div className="relative aspect-[2/3] w-full bg-slate-950">
                 {posterUrl ? (
                   <Image
                     src={posterUrl}
                     alt={`${title} のポスター`}
                     fill
-                    className="object-cover"
+                    className="object-cover transition duration-300 group-hover:scale-[1.03]"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     priority={false}
                   />
@@ -157,6 +137,18 @@ export default function PopularMovies({ movies }) {
                     No Image
                   </div>
                 )}
+
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+
+                <div className="pointer-events-none absolute bottom-3 left-3 right-3 flex flex-wrap gap-2">
+                  <span className="pointer-events-none rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold text-slate-900 shadow-sm ring-1 ring-white/40 backdrop-blur">
+                    原作言語: {formatOriginalLanguageForStudy(originalLanguage)}
+                  </span>
+                </div>
+
+                {Number.isFinite(id) ? (
+                  <Link href={`/movies/${id}`} className="absolute inset-0 z-0" aria-label={`${title}の詳細へ`} />
+                ) : null}
 
                 <FavoriteToggleButton
                   hydrated={hydrated}
@@ -182,14 +174,29 @@ export default function PopularMovies({ movies }) {
               </div>
 
               <div className="p-4">
-                <h2 className="text-center text-base font-extrabold leading-snug text-slate-900">{title}</h2>
+                <h2 className="text-center text-base font-extrabold leading-snug text-slate-900">
+                  {Number.isFinite(id) ? (
+                    <Link className="text-slate-900 hover:text-slate-700" href={`/movies/${id}`}>
+                      {title}
+                    </Link>
+                  ) : (
+                    title
+                  )}
+                </h2>
                 <div className="mt-3 grid justify-items-center gap-2">
                   <p className="text-xs text-slate-500">公開日：{formatReleaseDate(releaseDate)}</p>
-                  <p className="text-[11px] text-slate-400">原語: {formatOriginalLanguage(originalLanguage)}</p>
+                  <p className="text-[11px] text-slate-600">
+                    原作言語: <span className="font-semibold">{formatOriginalLanguageForStudy(originalLanguage)}</span>
+                  </p>
                   <div className="flex items-center gap-2">
                     <Stars rating5={rating5} />
                     <span className="text-xs font-semibold text-slate-500">{clamp(rating5, 0, 5).toFixed(1)}</span>
                   </div>
+                  {Number.isFinite(id) ? (
+                    <Link href={`/movies/${id}`} className="text-xs font-medium text-slate-700 hover:text-slate-900">
+                      詳細を見る
+                    </Link>
+                  ) : null}
                 </div>
               </div>
             </li>

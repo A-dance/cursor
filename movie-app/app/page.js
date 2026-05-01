@@ -45,7 +45,7 @@ function filterTabs(filter) {
   ];
 
   return (
-    <nav className="mt-4 flex flex-wrap gap-2" aria-label="映画一覧の絞り込み">
+    <nav className="mt-5 flex flex-wrap items-center gap-2" aria-label="映画一覧の絞り込み">
       {tabs.map((tab) => {
         const active = tab.key === filter;
         const href = tab.key === "popular" ? "/" : `/?filter=${tab.key}`;
@@ -54,10 +54,10 @@ function filterTabs(filter) {
             key={tab.key}
             href={href}
             className={[
-              "rounded-full px-4 py-2 text-sm font-semibold ring-1 transition",
+              "inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-lg border px-4 py-2 text-sm font-medium no-underline transition",
               active
-                ? "bg-slate-900 text-white ring-slate-900"
-                : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50",
+                ? "border-slate-900 bg-slate-900 text-white"
+                : "border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900",
             ].join(" ")}
             aria-current={active ? "page" : undefined}
           >

@@ -123,3 +123,22 @@ export async function fetchChineseMovies(opts = {}) {
     sortBy: "popularity.desc",
   });
 }
+
+/**
+ * @param {{
+ *  id: number,
+ *  language?: string,
+ * }} opts
+ */
+export async function fetchMovieDetail(opts) {
+  const language = opts.language ?? "ja-JP";
+  const id = opts.id;
+  if (!Number.isFinite(Number(id))) {
+    throw new Error("movie id が不正です");
+  }
+
+  return tmdbFetchJson(`/movie/${encodeURIComponent(String(id))}`, { language }, { next: { revalidate: 60 * 30 } });
+}
+
+// Backward-compatible alias for existing imports.
+export const fetchMovieDetails = fetchMovieDetail;

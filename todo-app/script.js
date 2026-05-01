@@ -60,7 +60,12 @@ function updateCount() {
 }
 
 function toDate(dateStr) {
-  return new Date(`${dateStr}T00:00:00`);
+  const [y, m, d] = String(dateStr).split("-").map(Number);
+  if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d)) {
+    return new Date(NaN);
+  }
+  // Parse as local calendar date at local midnight to avoid timezone shifts.
+  return new Date(y, m - 1, d, 0, 0, 0, 0);
 }
 
 function formatDate(dateStr) {
