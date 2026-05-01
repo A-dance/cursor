@@ -5,6 +5,8 @@ import {
   fetchPopularMovies as fetchPopularMoviesFromTmdb,
 } from "../lib/tmdb.js";
 
+export const dynamic = "force-dynamic";
+
 async function resolveSearchParams(searchParams) {
   if (typeof searchParams?.then === "function") {
     return await searchParams;
