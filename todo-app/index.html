@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todoリスト作成</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="card">
+        <header class="header">
+          <span class="chip">Today</span>
+          <h1>Todoリスト作成</h1>
+          <p>やることを整理して、ひとつずつ終わらせよう。</p>
+        </header>
+
+        <form id="todo-form" class="todo-form" autocomplete="off">
+          <div class="field todo-field">
+            <label for="todo-input">Todo内容</label>
+            <input
+              id="todo-input"
+              name="todo"
+              type="text"
+              placeholder="やることを入力"
+              maxlength="120"
+              required
+            />
+          </div>
+          <div class="field date-field">
+            <label for="start-date">開始日</label>
+            <input id="start-date" name="startDate" type="date" required />
+          </div>
+          <div class="field date-field">
+            <label for="end-date">終了日</label>
+            <input id="end-date" name="endDate" type="date" required />
+          </div>
+          <button type="submit">追加</button>
+        </form>
+
+        <div class="toolbar">
+          <div class="filters" role="tablist" aria-label="Todoの表示フィルタ">
+            <button class="filter-btn active" data-filter="all" type="button">すべて</button>
+            <button class="filter-btn" data-filter="active" type="button">未完了</button>
+            <button class="filter-btn" data-filter="completed" type="button">完了済み</button>
+          </div>
+          <button id="clear-completed" class="ghost" type="button">完了を削除</button>
+        </div>
+
+        <ul id="todo-list" class="todo-list" aria-live="polite"></ul>
+
+        <footer class="footer">
+          <span id="items-left">0件の未完了</span>
+        </footer>
+      </section>
+    </main>
+
+    <template id="todo-item-template">
+      <li class="todo-item">
+        <div class="todo-main">
+          <label class="todo-label">
+            <input class="toggle" type="checkbox" />
+            <span class="text"></span>
+          </label>
+          <div class="todo-meta">
+            <span class="period"></span>
+            <span class="due-badge"></span>
+          </div>
+          <div class="todo-meter" aria-hidden="true">
+            <div class="todo-meter-track">
+              <div class="todo-meter-fill"></div>
+            </div>
+            <span class="todo-meter-label"></span>
+          </div>
+        </div>
+        <button class="delete-btn" type="button" aria-label="削除">×</button>
+      </li>
+    </template>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
