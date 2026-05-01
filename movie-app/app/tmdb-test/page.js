@@ -9,15 +9,20 @@ export const metadata = {
 };
 
 async function loadKoreanOriginalLanguageMovies() {
-  const data = await fetchKoreanMovies({
-    page: 1,
-    language: "ja-JP",
-    // 韓国向けカタログに寄せたいので KR を明示（必要なら外して比較できます）
-    region: "KR",
-  });
+  try {
+    const data = await fetchKoreanMovies({
+      page: 1,
+      language: "ja-JP",
+      // 韓国向けカタログに寄せたいので KR を明示（必要なら外して比較できます）
+      region: "KR",
+    });
 
-  const results = Array.isArray(data?.results) ? data.results : [];
-  return results.slice(0, 20);
+    const results = Array.isArray(data?.results) ? data.results : [];
+    return { ok: true, movies: results.slice(0, 20), error: "" };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "映画データの取得に失敗しました";
+    return { ok: false, movies: [], error: message };
+  }
 }
 
 function Poster({ title, posterPath }) {
@@ -44,7 +49,8 @@ function Poster({ title, posterPath }) {
 }
 
 export default async function TmdbTestPage() {
-  const movies = await loadKoreanOriginalLanguageMovies();
+  const result = await loadKoreanOriginalLanguageMovies();
+  const movies = result.movies;
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100">
@@ -60,6 +66,12 @@ export default async function TmdbTestPage() {
             `discover/movie` の <span className="font-semibold text-white">with_original_language=ko</span> で取得しています（APIキーはサーバー側のみ）。
           </p>
         </header>
+
+        {!result.ok ? (
+          <div className="mb-6 rounded-2xl border border-rose-400/30 bg-rose-500/10 p-4 text-sm text-rose-100">
+            {result.error}
+          </div>
+        ) : null}
 
         <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {movies.map((movie) => {
