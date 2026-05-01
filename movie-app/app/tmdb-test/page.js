@@ -5,11 +5,6 @@ import { fetchKoreanMovies } from "../../lib/tmdb.js";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "TMDBテスト（韓国語オリジナル）",
-  description: "TMDB discover で original_language=ko の映画を20件表示するテストページ",
-};
-
 async function loadKoreanOriginalLanguageMovies() {
   try {
     const data = await fetchKoreanMovies({
