@@ -5,8 +5,6 @@ import {
   fetchPopularMovies as fetchPopularMoviesFromTmdb,
 } from "../lib/tmdb.js";
 
-export const dynamic = "force-dynamic";
-
 async function resolveSearchParams(searchParams) {
   if (typeof searchParams?.then === "function") {
     return await searchParams;
@@ -98,12 +96,6 @@ export default async function HomePage({ searchParams }) {
         </p>
 
         {filterTabs(filter)}
-
-        <p className="mt-3 text-sm text-slate-600">
-          <a className="font-semibold text-blue-700 underline-offset-2 hover:underline" href="/tmdb-test">
-            TMDBテスト一覧（/tmdb-test）
-          </a>
-        </p>
       </header>
 
       {!result.ok ? (
