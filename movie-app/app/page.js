@@ -1,74 +1,80 @@
-import Image from "next/image";
+import PopularMovies from "./components/PopularMovies.js";
+import {
+  fetchChineseMovies,
+  fetchKoreanMovies,
+  fetchPopularMovies as fetchPopularMoviesFromTmdb,
+} from "../lib/tmdb.js";
 
-function formatReleaseDate(dateStr) {
-  const date = new Date(`${dateStr}T00:00:00`);
-  if (Number.isNaN(date.getTime())) return dateStr || "";
-  return date.toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric" });
-}
-
-function clamp(n, min, max) {
-  return Math.max(min, Math.min(max, n));
-}
-
-function Star({ filled }) {
-  return (
-    <svg
-      className={`h-4 w-4 ${filled ? "text-amber-400" : "text-slate-200"}`}
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path
-        d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
-function Stars({ rating5 }) {
-  const r = clamp(Number(rating5) || 0, 0, 5);
-  const full = Math.round(r);
-  return (
-    <div className="flex items-center gap-1" aria-label={`評価 ${r.toFixed(1)} / 5`}>
-      {Array.from({ length: 5 }, (_, i) => (
-        <Star key={i} filled={i < full} />
-      ))}
-    </div>
-  );
-}
-
-async function fetchPopularMovies() {
-  const apiKey = process.env.TMDB_API_KEY;
-  if (!apiKey) {
-    return { ok: false, error: "TMDB_API_KEY が設定されていません（.env.local を確認してください）" };
+async function resolveSearchParams(searchParams) {
+  if (typeof searchParams?.then === "function") {
+    return await searchParams;
   }
+  return searchParams ?? {};
+}
 
-  const url = new URL("https://api.themoviedb.org/3/movie/popular");
-  url.searchParams.set("api_key", apiKey);
-  url.searchParams.set("language", "ja-JP");
-  url.searchParams.set("page", "1");
-
+/**
+ * TMDBの取得はこの Server Component 内に閉じる（`TMDB_API_KEY` をクライアントへ持ち込まない）。
+ *
+ * UI側（`PopularMovies`）は `movies` 配列を描画するだけ。
+ */
+async function loadMovies(filter) {
   try {
-    const res = await fetch(url.toString(), {
-      // APIキーが変わった時だけ再取得したいので、過剰にキャッシュしない
-      next: { revalidate: 60 * 30 },
-    });
+    const language = "ja-JP";
+    const page = 1;
 
-    if (!res.ok) {
-      return { ok: false, error: `TMDB API error: ${res.status}` };
-    }
+    const data =
+      filter === "ko"
+        ? await fetchKoreanMovies({ page, language, region: "KR" })
+        : filter === "zh"
+          ? await fetchChineseMovies({ page, language, region: "CN" })
+          : await fetchPopularMoviesFromTmdb({ page, language });
 
-    const data = await res.json();
     const results = Array.isArray(data?.results) ? data.results : [];
     return { ok: true, movies: results };
-  } catch {
-    return { ok: false, error: "TMDB API に接続できませんでした" };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "TMDB API に接続できませんでした";
+    return { ok: false, error: message, movies: [] };
   }
 }
 
-export default async function HomePage() {
-  const result = await fetchPopularMovies();
+function filterTabs(filter) {
+  const tabs = [
+    { key: "popular", label: "人気" },
+    { key: "ko", label: "韓国語（原作）" },
+    { key: "zh", label: "中国語（原作）" },
+  ];
+
+  return (
+    <nav className="mt-4 flex flex-wrap gap-2" aria-label="映画一覧の絞り込み">
+      {tabs.map((tab) => {
+        const active = tab.key === filter;
+        const href = tab.key === "popular" ? "/" : `/?filter=${tab.key}`;
+        return (
+          <a
+            key={tab.key}
+            href={href}
+            className={[
+              "rounded-full px-4 py-2 text-sm font-semibold ring-1 transition",
+              active
+                ? "bg-slate-900 text-white ring-slate-900"
+                : "bg-white text-slate-700 ring-slate-200 hover:bg-slate-50",
+            ].join(" ")}
+            aria-current={active ? "page" : undefined}
+          >
+            {tab.label}
+          </a>
+        );
+      })}
+    </nav>
+  );
+}
+
+export default async function HomePage({ searchParams }) {
+  const sp = await resolveSearchParams(searchParams);
+  const filterRaw = sp?.filter;
+  const filter = filterRaw === "ko" || filterRaw === "zh" ? filterRaw : "popular";
+
+  const result = await loadMovies(filter);
 
   return (
     <main className="mx-auto min-h-screen max-w-6xl p-6 md:p-10">
@@ -77,11 +83,19 @@ export default async function HomePage() {
           My Movie App
         </p>
         <h1 className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900 md:text-4xl">
-          今人気の映画リスト
+          {filter === "ko"
+            ? "韓国語（原作）の映画"
+            : filter === "zh"
+              ? "中国語（原作）の映画"
+              : "今人気の映画リスト"}
         </h1>
         <p className="mt-2 text-sm text-slate-500">
-          TMDBの人気ランキングから取得して表示しています。
+          {filter === "popular"
+            ? "TMDBの人気ランキングから取得して表示しています。"
+            : "TMDBの discover を使って、原作言語（original_language）で絞り込んだ一覧です。"}
         </p>
+
+        {filterTabs(filter)}
       </header>
 
       {!result.ok ? (
@@ -89,54 +103,7 @@ export default async function HomePage() {
           {result.error}
         </div>
       ) : (
-        <ul className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {result.movies.map((movie) => {
-            const title = movie?.title ?? movie?.name ?? "Untitled";
-            const releaseDate = movie?.release_date ?? "";
-            const rating5 = (Number(movie?.vote_average) || 0) / 2;
-            const posterPath = movie?.poster_path ?? "";
-            const posterUrl = posterPath ? `https://image.tmdb.org/t/p/w500${posterPath}` : "";
-
-            return (
-              <li
-                key={movie.id ?? `${title}-${releaseDate}`}
-                className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-              >
-                <div className="relative aspect-[2/3] w-full bg-slate-100">
-                  {posterUrl ? (
-                    <Image
-                      src={posterUrl}
-                      alt={`${title} のポスター`}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      priority={false}
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center px-6 text-center text-sm font-semibold text-slate-500">
-                      No Image
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-4">
-                  <h2 className="text-center text-base font-extrabold leading-snug text-slate-900">
-                    {title}
-                  </h2>
-                  <div className="mt-3 grid justify-items-center gap-2">
-                    <p className="text-xs text-slate-500">公開日：{formatReleaseDate(releaseDate)}</p>
-                    <div className="flex items-center gap-2">
-                      <Stars rating5={rating5} />
-                      <span className="text-xs font-semibold text-slate-500">
-                        {clamp(rating5, 0, 5).toFixed(1)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+        <PopularMovies movies={result.movies} />
       )}
     </main>
   );
