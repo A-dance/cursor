@@ -3,6 +3,8 @@ import Link from "next/link";
 import { formatOriginalLanguageForStudy } from "../../lib/languageFormat.js";
 import { fetchKoreanMovies } from "../../lib/tmdb.js";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "TMDBテスト（韓国語オリジナル）",
   description: "TMDB discover で original_language=ko の映画を20件表示するテストページ",

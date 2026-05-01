@@ -3,6 +3,8 @@ import Link from "next/link";
 import { formatOriginalLanguageForStudy } from "../../../lib/languageFormat.js";
 import { fetchMovieDetail } from "../../../lib/tmdb.js";
 
+export const dynamic = "force-dynamic";
+
 async function resolveParams(params) {
   if (typeof params?.then === "function") {
     return await params;

@@ -4,6 +4,8 @@ import MovieFavoriteButton from "../../components/MovieFavoriteButton.js";
 import { formatOriginalLanguageForStudy } from "../../../lib/languageFormat.js";
 import { fetchMovieDetails } from "../../../lib/tmdb.js";
 
+export const dynamic = "force-dynamic";
+
 async function resolveParams(params) {
   if (typeof params?.then === "function") {
     return await params;
