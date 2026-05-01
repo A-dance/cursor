@@ -11,7 +11,10 @@ const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 function requireApiKey() {
   const apiKey = process.env.TMDB_API_KEY;
   if (!apiKey) {
-    throw new Error("TMDB_API_KEY が設定されていません（.env.local を確認してください）");
+    const hint = process.env.VERCEL
+      ? "Vercel の Project → Settings → Environment Variables に TMDB_API_KEY を追加し、Production（必要なら Preview）にチェックを入れて再デプロイしてください。"
+      : "ローカルでは movie-app/.env.local に TMDB_API_KEY=... を書いてください。";
+    throw new Error(`TMDB_API_KEY が設定されていません。${hint}`);
   }
   return apiKey;
 }
