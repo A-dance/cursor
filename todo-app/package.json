@@ -6,6 +6,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "test": "jest",
+    "test:e2e": "playwright test",
+    "test:e2e:stripe": "playwright test --project=stripe",
+    "pw:ui": "playwright test --ui",
     "stripe:create-test-customer": "node scripts/createTestCustomer.js",
     "stripe:check-paid": "node scripts/checkPaid.js"
   },
@@ -19,7 +23,9 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
+    "@playwright/test": "^1.60.0",
     "eslint": "^9.39.4",
-    "eslint-config-next": "^16.2.6"
+    "eslint-config-next": "^16.2.6",
+    "jest": "^30.4.2"
   }
 }
