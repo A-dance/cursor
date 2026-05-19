@@ -1,5 +1,6 @@
 # 教科書: main への push で Vercel に本番デプロイ
-# 事前に GitHub Secrets を設定: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
+# GitHub Secrets: VERCEL_TOKEN（必須）, VERCEL_PROJECT_ID（必須）
+# VERCEL_ORG_ID は Team Settings にあるが、--scope で代替可
 name: Deploy to Vercel
 
 on:
@@ -27,6 +28,5 @@ jobs:
       - name: Deploy to Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel deploy --prod --token "$VERCEL_TOKEN"
+        run: vercel deploy --prod --token "$VERCEL_TOKEN" --scope a-dances-projects --yes
