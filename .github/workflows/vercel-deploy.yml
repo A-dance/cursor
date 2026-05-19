@@ -7,7 +7,7 @@ on:
     branches: [main]
     paths:
       - "todo-app/**"
-      - ".github/workflows/deploy.yml"
+      - ".github/workflows/vercel-deploy.yml"
   workflow_dispatch:
 
 jobs:
