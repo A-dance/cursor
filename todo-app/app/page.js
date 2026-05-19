@@ -1,13 +1,10 @@
-import Link from "next/link";
+import AuthGate from "@/components/AuthGate";
 
-export default function HomePage() {
+export default function Home() {
   return (
-    <main>
-      <h1>Todo App</h1>
-      <p>Supabase に保存された TODO を表示します。</p>
-      <p>
-        <Link href="/todos">TODOリストを見る →</Link>
-      </p>
+    <main style={{ padding: "2rem" }}>
+      <h2>TODO アプリ</h2>
+      <AuthGate />
     </main>
   );
 }

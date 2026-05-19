@@ -1,33 +1,21 @@
-import { fetchTodos } from "@/lib/fetchTodos";
+"use client";
 
-export const dynamic = "force-dynamic";
+import { useState } from "react";
+import TodoForm from "@/components/TodoForm";
+import TodoList from "@/components/TodoList";
 
-export default async function TodoListPage() {
-  let todos = [];
-  let errorMessage = null;
+export default function TodosPage() {
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  try {
-    todos = await fetchTodos();
-  } catch (err) {
-    console.error(err);
-    errorMessage =
-      err instanceof Error ? err.message : "データの取得に失敗しました";
-  }
+  const handleAdd = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
 
   return (
-    <main>
-      <h2>TODOリスト</h2>
-      {errorMessage ? (
-        <p>エラー: {errorMessage}</p>
-      ) : todos.length === 0 ? (
-        <p>TODO がありません。</p>
-      ) : (
-        <ul>
-          {todos.map((todo) => (
-            <li key={todo.id}>{todo.title.trim()}</li>
-          ))}
-        </ul>
-      )}
+    <main style={{ padding: "2rem" }}>
+      <h2>TODO リスト</h2>
+      <TodoForm onAdd={handleAdd} />
+      <TodoList refreshKey={refreshKey} />
     </main>
   );
 }
