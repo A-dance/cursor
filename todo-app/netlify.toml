@@ -1,0 +1,7 @@
+# Netlify 演習用（Next.js）
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
