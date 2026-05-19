@@ -1,0 +1,17 @@
+# 教科書どおりの最小例（動きの確認用）
+name: Hello World
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run a one-line script
+        run: echo "Hello, World!"
