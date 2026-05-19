@@ -1,0 +1,32 @@
+# 教科書: AI で作る Node.js CI（main への push で npm install → npm test）
+name: Node.js CI
+
+on:
+  push:
+    branches: ["main", "feature/practice-sandbox"]
+    paths:
+      - "todo-app/**"
+      - ".github/workflows/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: todo-app
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
