@@ -11,7 +11,7 @@ export const updateTodo = async (id, newTitle) => {
     .select();
 
   if (error) {
-    console.error("更新に失敗しました:", error.message);
+    console.warn("更新に失敗しました:", error.message);
     return false;
   }
 

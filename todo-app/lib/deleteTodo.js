@@ -11,7 +11,7 @@ export const deleteTodo = async (id) => {
     .select();
 
   if (error) {
-    console.error("削除に失敗しました:", error.message);
+    console.warn("削除に失敗しました:", error.message);
     return false;
   }
 

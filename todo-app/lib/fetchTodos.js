@@ -14,7 +14,7 @@ export const fetchTodos = async () => {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("TODO 取得失敗:", error.message);
+    console.warn("TODO 取得失敗:", error.message);
     return [];
   }
 

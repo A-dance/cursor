@@ -12,8 +12,10 @@ export default function AppNav() {
       }}
     >
       <Link href="/">ホーム</Link>
+      <Link href="/dashboard">検証</Link>
       <Link href="/todos">TODOリスト</Link>
       <Link href="/auth">認証</Link>
+      <Link href="/subscribe">有料プラン</Link>
     </nav>
   );
 }

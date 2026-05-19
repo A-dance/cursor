@@ -16,7 +16,7 @@ export const insertTodo = async (title) => {
     .single();
 
   if (error) {
-    console.error("TODO 追加失敗:", error.message);
+    console.warn("TODO 追加失敗:", error.message);
     return null;
   }
 

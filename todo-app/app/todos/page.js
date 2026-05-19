@@ -1,21 +1,13 @@
-"use client";
-
-import { useState } from "react";
-import TodoForm from "@/components/TodoForm";
-import TodoList from "@/components/TodoList";
+import AuthGate from "@/components/AuthGate";
 
 export default function TodosPage() {
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  const handleAdd = () => {
-    setRefreshKey((prev) => prev + 1);
-  };
-
   return (
     <main style={{ padding: "2rem" }}>
       <h2>TODO リスト</h2>
-      <TodoForm onAdd={handleAdd} />
-      <TodoList refreshKey={refreshKey} />
+      <p style={{ fontSize: "0.875rem", color: "#666", marginBottom: "1rem" }}>
+        有料プラン登録済みのユーザーのみ利用できます（マニュアル: ルーティングガード）。
+      </p>
+      <AuthGate />
     </main>
   );
 }

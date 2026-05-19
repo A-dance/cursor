@@ -1,14 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { insertTodo } from "@/lib/insertTodo";
+import { createTodoViaApi } from "@/lib/todoApi";
 
 /**
  * props:
  *   onAdd: (todo) => void
  */
 export default function TodoForm({ onAdd }) {
-  // 教材 例2: オブジェクトを state で管理
   const [form, setForm] = useState({ title: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -22,15 +21,9 @@ export default function TodoForm({ onAdd }) {
     setError(null);
 
     try {
-      const newTodo = await insertTodo(trimmed);
-      if (newTodo) {
-        onAdd(newTodo);
-        setForm((prev) => ({ ...prev, title: "" }));
-      } else {
-        setError(
-          "追加に失敗しました。user_id カラムと RLS ポリシーを確認してください。",
-        );
-      }
+      const newTodo = await createTodoViaApi(trimmed);
+      onAdd(newTodo);
+      setForm((prev) => ({ ...prev, title: "" }));
     } catch (err) {
       setError(err instanceof Error ? err.message : "追加に失敗しました");
     } finally {

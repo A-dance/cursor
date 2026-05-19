@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { deleteTodo } from "@/lib/deleteTodo";
-import { updateTodo } from "@/lib/updateTodo";
+import { deleteTodoViaApi, updateTodoViaApi } from "@/lib/todoApi";
 
 export default function TodoItem({ todo, onRefresh }) {
   const [editing, setEditing] = useState(false);
@@ -16,16 +15,14 @@ export default function TodoItem({ todo, onRefresh }) {
 
     setLoading(true);
     setError(null);
-    const ok = await updateTodo(todo.id, trimmed);
-    setLoading(false);
-
-    if (ok) {
+    try {
+      await updateTodoViaApi(todo.id, trimmed);
       setEditing(false);
       onRefresh();
-    } else {
-      setError(
-        "更新に失敗しました。UPDATE 用の RLS ポリシーがあるか確認してください。",
-      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "更新に失敗しました");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -34,15 +31,13 @@ export default function TodoItem({ todo, onRefresh }) {
 
     setLoading(true);
     setError(null);
-    const ok = await deleteTodo(todo.id);
-    setLoading(false);
-
-    if (ok) {
+    try {
+      await deleteTodoViaApi(todo.id);
       onRefresh();
-    } else {
-      setError(
-        "削除に失敗しました。DELETE 用の RLS ポリシーがあるか確認してください。",
-      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "削除に失敗しました");
+    } finally {
+      setLoading(false);
     }
   };
 
