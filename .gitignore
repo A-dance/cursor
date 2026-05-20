@@ -1,2 +1,18 @@
 .DS_Store
 **/.DS_Store
+.vercel
+
+# Secrets & local auth (never commit)
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+*.pem
+*.p12
+*credentials*.json
+serviceAccount*.json
+
+# Local mirrors / nested clones
+cursor1/
